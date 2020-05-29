@@ -5,12 +5,12 @@ services:
     image: ${IMAGE_NAME:-giabar/gb-kafkamanager}:${IMAGE_TAG:-latest}
     environment:
       ZK_HOSTS: zk-1:${ZK_PORT},zk-2:${ZK_PORT},zk-3:${ZK_PORT}
-      KM_ARGS: '-Djava.net.preferIPv4Stack=true'
+      KM_ARGS: -Djava.net.preferIPv4Stack=true
     networks:
       kafka-net:
       traefik-net:
     healthcheck:
-      test: wget --spider -S -t 3 http://localhost:${KM_PORT}
+      test: wget --spider -S -t 1 http://localhost:${KM_PORT}
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-10s}
       retries: ${HEALTHCHECK_RETRIES:-3}
@@ -19,11 +19,10 @@ services:
       mode: replicated
       replicas: ${REPLICAS:-1}
       labels:
-        traefik.docker.network: traefik-net
         traefik.frontend.auth.basic.users: ${UI_AUTH}
         traefik.frontend.rule: Host:kafkamanager.${PUBLIC_HOSTNAME}
         traefik.backend: kafka-manager
-        traefik.port: "${KM_PORT}"
+        traefik.port: '${KM_PORT}'
       restart_policy:
         delay: ${RESTART_DELAY:-30s}
       update_config:
