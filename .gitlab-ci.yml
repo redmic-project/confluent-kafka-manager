@@ -6,12 +6,9 @@ include:
 stages:
   - deploy
 
-variables:
-  PROJECT_PARENT_NAME: confluent
-
 .deploy:
   variables:
-    STACK: ${PROJECT_PARENT_NAME}
-    SERVICES_TO_CHECK: ${PROJECT_PARENT_NAME}_${CI_PROJECT_NAME}
+    STACK: confluent
+    DD_TRAEFIK_SUBDOMAIN: kafkamanager
   environment:
-    url: https://kafkamanager.${PUBLIC_HOSTNAME}
+    url: https://${DD_TRAEFIK_SUBDOMAIN}.${PUBLIC_HOSTNAME}

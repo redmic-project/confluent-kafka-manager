@@ -1,16 +1,24 @@
 version: '3.5'
 
 services:
-  kafka-manager:
-    image: ${IMAGE_NAME:-giabar/gb-kafkamanager}:${IMAGE_TAG:-latest}
+  cmak:
+    image: ${IMAGE_NAME:-hlebalbau/kafka-manager}:${IMAGE_TAG:-stable}
+    command:
+      - -Dhttp.port=${HTTP_PORT}
+      - -Djava.net.preferIPv4Stack=true
     environment:
-      ZK_HOSTS: zk-1:${ZK_PORT},zk-2:${ZK_PORT},zk-3:${ZK_PORT}
-      KM_ARGS: -Djava.net.preferIPv4Stack=true
+      ZK_HOSTS:
+      APPLICATION_SECRET:
+      KAFKA_MANAGER_AUTH_ENABLED:
+      KAFKA_MANAGER_USERNAME:
+      KAFKA_MANAGER_PASSWORD:
     networks:
       kafka-net:
       traefik-net:
+    volumes:
+      - conf-vol:/kafka-manager/conf
     healthcheck:
-      test: wget --spider -S -t 1 http://localhost:${KM_PORT}
+      test: wget --spider -nv -t 1 http://localhost:${HTTP_PORT}/api/health
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-10s}
       retries: ${HEALTHCHECK_RETRIES:-3}
@@ -19,10 +27,9 @@ services:
       mode: replicated
       replicas: ${REPLICAS:-1}
       labels:
-        traefik.frontend.auth.basic.users: ${UI_AUTH}
-        traefik.frontend.rule: Host:kafkamanager.${PUBLIC_HOSTNAME}
-        traefik.backend: kafka-manager
-        traefik.port: '${KM_PORT}'
+        traefik.frontend.rule: Host:${TRAEFIK_SUBDOMAIN:-kafkamanager}.${PUBLIC_HOSTNAME}
+        traefik.backend: cmak
+        traefik.port: '${HTTP_PORT}'
       restart_policy:
         delay: ${RESTART_DELAY:-30s}
       update_config:
@@ -45,3 +52,12 @@ networks:
     name: ${TRAEFIK_NET_NAME:-traefik-net}
     driver: ${TRAEFIK_NET_DRIVER:-overlay}
     external: true
+
+volumes:
+  conf-vol:
+    name: ${CONF_VOL_NAME:-cmak-conf-vol}
+    driver: local
+    driver_opts:
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
+      device: :/cmak-conf-vol/

@@ -1,3 +1,3 @@
-# Kafka manager
+# CMAK
 
-Kafka manager is a tool for managing Apache Kafka clusters.
+Deployment for CMAK (previously known as Kafka Manager), a tool for managing Apache Kafka clusters.
