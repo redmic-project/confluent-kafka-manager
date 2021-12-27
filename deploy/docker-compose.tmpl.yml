@@ -16,9 +16,9 @@ services:
       kafka-net:
       traefik-net:
     volumes:
-      - conf-vol:/cmak/conf
+      - conf-vol:/kafka-manager/conf
     healthcheck:
-      test: wget --spider -S -t 1 http://localhost:${HTTP_PORT}/api/health
+      test: wget --spider -nv -t 1 http://localhost:${HTTP_PORT}/api/health
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-10s}
       retries: ${HEALTHCHECK_RETRIES:-3}
