@@ -1,1 +1,10 @@
 version: '3.5'
+
+volumes:
+  conf-vol:
+    name: ${CONF_VOL_NAME}
+    driver: local
+    driver_opts:
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
+      device: :/cmak-conf-vol/

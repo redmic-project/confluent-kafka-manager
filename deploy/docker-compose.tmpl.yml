@@ -52,12 +52,3 @@ networks:
     name: ${TRAEFIK_NET_NAME:-traefik-net}
     driver: ${TRAEFIK_NET_DRIVER:-overlay}
     external: true
-
-volumes:
-  conf-vol:
-    name: ${CONF_VOL_NAME:-cmak-conf-vol}
-    driver: local
-    driver_opts:
-      type: ${VOL_TYPE}
-      o: addr=${VOL_ADDR},${VOL_OPTIONS}
-      device: :/cmak-conf-vol/
