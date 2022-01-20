@@ -1,5 +1,12 @@
 version: '3.5'
 
+services:
+  cmak:
+    deploy:
+      placement:
+        constraints:
+          - node.role == worker
+
 volumes:
   conf-vol:
     name: ${CONF_VOL_NAME}
