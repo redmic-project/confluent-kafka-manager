@@ -1,8 +1,6 @@
-version: '3.5'
-
 services:
   cmak:
-    image: ${IMAGE_NAME:-hlebalbau/kafka-manager}:${IMAGE_TAG:-stable}
+    image: ${IMAGE_NAME:-ghcr.io/eshepelyuk/dckr/cmak-3.0.0.6}:${IMAGE_TAG:-latest}
     command:
       - -Dhttp.port=${HTTP_PORT}
       - -Djava.net.preferIPv4Stack=true
@@ -16,24 +14,22 @@ services:
       kafka-net:
       traefik-net:
     volumes:
-      - conf-vol:/kafka-manager/conf
-    healthcheck:
-      test: wget --spider -nv -t 1 http://localhost:${HTTP_PORT}/api/health
-      interval: ${HEALTHCHECK_INTERVAL:-30s}
-      timeout: ${HEALTHCHECK_TIMEOUT:-10s}
-      retries: ${HEALTHCHECK_RETRIES:-3}
-      start_period: ${HEALTHCHECK_START_PERIOD:-2m}
+      - conf-vol:/cmak/conf
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
-      labels:
-        traefik.frontend.rule: Host:${TRAEFIK_SUBDOMAIN:-kafkamanager}.${PUBLIC_HOSTNAME}
-        traefik.backend: cmak
-        traefik.port: '${HTTP_PORT}'
       restart_policy:
         delay: ${RESTART_DELAY:-30s}
       update_config:
         delay: ${UPDATE_DELAY:-1m}
+      labels:
+        traefik.enable: ${TRAEFIK_ENABLE:-true}
+        traefik.http.routers.cmak.entrypoints: ${TRAEFIK_ENTRYPOINT:-http}
+        traefik.http.routers.cmak.rule: Host(`${TRAEFIK_SUBDOMAIN:-kafkamanager}.${PUBLIC_HOSTNAME}`)
+        traefik.http.services.cmak.loadbalancer.server.port: ${HTTP_PORT}
+        traefik.http.services.cmak.loadbalancer.healthcheck.path: ${TRAEFIK_HEALTHCHECK_PATH:-/api/health}
+        traefik.http.services.cmak.loadbalancer.healthcheck.interval: ${TRAEFIK_HEALTHCHECK_INTERVAL:-30s}
+        traefik.http.services.cmak.loadbalancer.healthcheck.timeout: ${TRAEFIK_HEALTHCHECK_TIMEOUT:-10s}
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-1}'
