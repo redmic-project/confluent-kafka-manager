@@ -1,5 +1,3 @@
-version: '3.5'
-
 services:
   cmak:
     image: ${IMAGE_NAME:-hlebalbau/kafka-manager}:${IMAGE_TAG:-stable}
