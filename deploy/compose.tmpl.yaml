@@ -16,22 +16,23 @@ services:
     volumes:
       - conf-vol:/kafka-manager/conf
     healthcheck:
-      test: wget --spider -nv -t 1 http://localhost:${HTTP_PORT}/api/health
+      test: wget --spider -nv http://localhost:${HTTP_PORT}/api/health
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-10s}
-      retries: ${HEALTHCHECK_RETRIES:-3}
+      retries: ${HEALTHCHECK_RETRIES:-5}
       start_period: ${HEALTHCHECK_START_PERIOD:-2m}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
-      labels:
-        traefik.frontend.rule: Host:${TRAEFIK_SUBDOMAIN:-kafkamanager}.${PUBLIC_HOSTNAME}
-        traefik.backend: cmak
-        traefik.port: '${HTTP_PORT}'
       restart_policy:
         delay: ${RESTART_DELAY:-30s}
       update_config:
         delay: ${UPDATE_DELAY:-1m}
+      labels:
+        traefik.enable: ${TRAEFIK_ENABLE:-true}
+        traefik.http.routers.cmak.entrypoints: ${TRAEFIK_ENTRYPOINT:-http}
+        traefik.http.routers.cmak.rule: Host(`${TRAEFIK_SUBDOMAIN:-kafkamanager}.${PUBLIC_HOSTNAME}`)
+        traefik.http.services.cmak.loadbalancer.server.port: ${HTTP_PORT}
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-1}'
