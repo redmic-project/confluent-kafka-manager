@@ -1,6 +1,6 @@
 services:
   cmak:
-    image: ${IMAGE_NAME:-hlebalbau/kafka-manager}:${IMAGE_TAG:-stable}
+    image: ${IMAGE_NAME:-ghcr.io/eshepelyuk/dckr/cmak-3.0.0.6}:${IMAGE_TAG:-latest}
     command:
       - -Dhttp.port=${HTTP_PORT}
       - -Djava.net.preferIPv4Stack=true
@@ -14,7 +14,7 @@ services:
       kafka-net:
       traefik-net:
     volumes:
-      - conf-vol:/kafka-manager/conf
+      - conf-vol:/cmak/conf
     healthcheck:
       test: wget --spider -nv http://localhost:${HTTP_PORT}/api/health
       interval: ${HEALTHCHECK_INTERVAL:-30s}
